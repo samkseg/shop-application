@@ -18,10 +18,10 @@ public class ProductRepository {
         return repository.values().stream().toList();
     }
     public List<Product> findByName(String name) {
-        return repository.values().stream().filter(p -> p.getName().equals(name)).toList();
+        return repository.values().stream().filter(product -> product.getName().toLowerCase().contains(name.toLowerCase())).toList();
     }
     public List<Product> findByCategory(String category) {
-        return repository.values().stream().filter(p -> p.getCategory().equals(category)).toList();
+        return repository.values().stream().filter(product -> product.getCategory().toLowerCase().contains(category.toLowerCase())).toList();
     }
     public Optional<Product> findById(long id) {
         Product product = repository.get(id);

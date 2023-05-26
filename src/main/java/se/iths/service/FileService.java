@@ -1,55 +1,99 @@
 package se.iths.service;
 
+import se.iths.model.Order;
+import se.iths.model.OrderLine;
 import se.iths.model.Product;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
+import java.util.List;
 
 public class FileService {
-    Scanner input = new Scanner(System.in);
     private HashMap<Long, Product> products = new HashMap<>();
-    BufferedReader bufferedReader;
-    String[] strings;
-    String data;
-    private long id = 0;
+    private HashMap<Long, Order> orders = new HashMap<>();
+    private BufferedReader bufferedReader;
+    private String[] strings;
+    private String[] orderLines;
+    private String data;
+    private long productCount = 0;
+    private long orderCount = 0;
 
     public void fileReader() {
         try {
             bufferedReader = new BufferedReader(new FileReader("inventory.txt"));
-            loadFile();
+            loadProducts();
+            bufferedReader = new BufferedReader(new FileReader("orders.txt"));
+            loadOrders();
         } catch (Exception e) {
             fileWriter();
         }
     }
 
+
     public void fileWriter() {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("inventory.txt"));
-            loadData(writer);
+            BufferedWriter productsWriter = new BufferedWriter(new FileWriter("inventory.txt"));
+            readProducts(productsWriter);
+            BufferedWriter orderWriter = new BufferedWriter(new FileWriter("orders.txt"));
+            readOrders(orderWriter);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void loadData(BufferedWriter writer) throws IOException {
-        writer.write(writeData(products));
+    private void readOrders(BufferedWriter writer) throws IOException {
+        writer.write(writeOrders(orders));
         writer.close();
     }
 
-    private String writeData(HashMap<Long, Product> products) {
-        if (!products.isEmpty() && !(products.get(products.size()) == null)) {
-            id = products.get(products.size()).getId();
+    private String writeOrders(HashMap<Long, Order> orders) {
+        if (!(orders.get(orders.size() -1) == null)) {
+            orderCount = orders.get(orders.size() -1).getId();
         }
-        data = id + "\n";
+        data = orderCount + "\n";
+        for (Order order : orders.values()) {
+            data += order.getId() + "/";
+            for (OrderLine orderLine : order.getOrderLines()) {
+                data += orderLine.getProductId() + "," + orderLine.getProduct() + "," + orderLine.getQuantity() + "," + orderLine.getTotalPrice() + ",";
+            }
+            data += "/" + "\n";
+        }
+        return data;
+    }
+
+    private void loadOrders() throws IOException {
+        orderCount = Long.parseLong(bufferedReader.readLine());
+        String row;
+        while ((row = bufferedReader.readLine()) != null) {
+            strings = row.split("/");
+            orderLines = strings[1].split(",");
+            List<OrderLine> list = new ArrayList<>();
+            for (int i = 0; i < orderLines.length; i+=4) {
+                list.add(new OrderLine(Long.parseLong(orderLines[i]), orderLines[i+1], Long.parseLong(orderLines[i+2]), Double.parseDouble(orderLines[i+3])));
+            }
+            orders.put(Long.parseLong(strings[0]),new Order(Long.parseLong(strings[0]),list));
+        }
+    }
+
+    private void readProducts(BufferedWriter writer) throws IOException {
+        writer.write(writeProducts(products));
+        writer.close();
+    }
+
+    private String writeProducts(HashMap<Long, Product> products) {
+        if (!(products.get(products.size()-1) == null)) {
+            productCount = products.get(products.size()-1).getId();
+        }
+        data = productCount + "\n";
         for (Product product : products.values()) {
             data += product.getId() + "," + product.getName()  + "," + product.getPrice() + "," + product.getCategory() + "," + product.getBrand() + "," + product.getQuantity()  + "," + "\n";
         }
         return data;
     }
 
-    private void loadFile() throws IOException {
-        id = Long.parseLong(bufferedReader.readLine());
+    private void loadProducts() throws IOException {
+        productCount = Long.parseLong(bufferedReader.readLine());
         String row;
         while ((row = bufferedReader.readLine()) != null) {
             strings = row.split(",");
@@ -57,6 +101,14 @@ public class FileService {
                 products.put(Long.parseLong(strings[i]),new Product(Long.parseLong((strings[i])), strings[i+1], Double.parseDouble(strings[i+2]), strings[i+3], strings[i+4], Long.parseLong(strings[i+5])));
             }
         }
+    }
+
+    public HashMap<Long, Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(HashMap<Long, Order> orders) {
+        this.orders = orders;
     }
 
     public HashMap<Long, Product> getProducts() {
@@ -67,7 +119,19 @@ public class FileService {
         this.products = products;
     }
 
-    public long getCount() {
-        return id;
+    public long getProductCount() {
+        return productCount;
+    }
+
+    public long getOrderCount() {
+        return orderCount;
+    }
+
+    public void setProductCount(long productCount) {
+        this.productCount = productCount;
+    }
+
+    public void setOrderCount(long orderCount) {
+        this.orderCount = orderCount;
     }
 }

@@ -1,5 +1,7 @@
 package se.iths.model;
 
+import java.util.Objects;
+
 public class Product {
     private long id;
     private String name;
@@ -67,11 +69,24 @@ public class Product {
 
     @Override
     public String toString() {
-        return "id: " + id +
+        return "ID: " + id +
                 ", " + name +
                 ", " + price +
                 ", " + category +
                 ", " + brand +
                 ", " + quantity + " pcs";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return id == product.id && Double.compare(product.price, price) == 0 && quantity == product.quantity && Objects.equals(name, product.name) && Objects.equals(category, product.category) && Objects.equals(brand, product.brand);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, price, category, brand, quantity);
     }
 }

@@ -1,33 +1,45 @@
 package se.iths.controller;
 
+import se.iths.data.OrderRepository;
 import se.iths.data.ProductRepository;
-import se.iths.model.Product;
+import se.iths.model.*;
 import se.iths.service.FileService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class ShopController {
-    static long id = 0;
-    ProductRepository repository = new ProductRepository();
-
+    static long productCount = 0;
+    static long orderCount = 0;
+    ProductRepository productRepository = new ProductRepository();
+    OrderRepository orderRepository = new OrderRepository();
     FileService fileService = new FileService();
     Scanner scanner = new Scanner(System.in);
+    Cart cart = new Cart();
     public ShopController() {
     }
     public void start() {
         fileService.fileReader();
-        repository.setRepository(fileService.getProducts());
-        id = fileService.getCount();
+        productRepository.setRepository(fileService.getProducts());
+        orderRepository.setRepository(fileService.getOrders());
+        productCount = fileService.getProductCount();
+        orderCount = fileService.getOrderCount();
         menu();
     }
 
     private void shutDown() {
-        fileService.setProducts(repository.getRepository());
-        fileService.fileWriter();
-        System.out.println(fileService.getProducts().values().stream().toList());
+        save();
         System.exit(0);
+    }
+
+    private void save() {
+        fileService.setOrderCount(orderCount);
+        fileService.setProductCount(productCount);
+        fileService.setProducts(productRepository.getRepository());
+        fileService.setOrders(orderRepository.getRepository());
+        fileService.fileWriter();
     }
 
     public void menu() {
@@ -35,19 +47,40 @@ public class ShopController {
             System.out.println("""
                 Menu
                 
-                1. View products
-                2. Add product
-                3. Update product
-                4. Remove product
-                5. Exit
+                1. View Shop
+                2. Product Register
+                
+                3. Exit
                 """);
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1" -> viewMenu();
-                case "2" -> addMenu();
+                case "2" -> productRegister();
+                case "3", "e", "E" -> shutDown();
+            }
+        }
+    }
+
+    private void productRegister() {
+        boolean loop = true;
+        while (loop) {
+            System.out.println("""
+                Product Register
+                
+                1. Add product
+                2. View Products
+                3. Update product
+                4. Remove product
+                
+                5. Back
+                """);
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> addMenu();
+                case "2" -> viewAll();
                 case "3" -> updateMenu();
                 case "4" -> removeMenu();
-                case "5", "e", "E" -> shutDown();
+                case "5", "e", "E" -> {loop = false;}
             }
         }
     }
@@ -56,10 +89,11 @@ public class ShopController {
         System.out.println("ID: ");
         long id = scanner.nextLong();
         scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             String name = optionalProduct.get().getName();
-            repository.removeProduct(id);
+            productRepository.removeProduct(id);
+            save();
             System.out.println(name + " has been removed.");
         } else {
             System.out.println("Could not find product.");
@@ -75,6 +109,7 @@ public class ShopController {
                 3. Update category
                 4. Update brand
                 5. Update quantity
+                
                 6. Back
                 """);
         String choice = scanner.nextLine();
@@ -94,9 +129,10 @@ public class ShopController {
         System.out.println("Update quantity: ");
         long quantity = scanner.nextLong();
         scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             optionalProduct.get().setQuantity(quantity);
+            save();
             System.out.println(optionalProduct.get().getName() + " has been updated.");
             System.out.println("New quantity: " + quantity);
         } else {
@@ -110,9 +146,10 @@ public class ShopController {
         scanner.nextLine();
         System.out.println("Update brand: ");
         String category = scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             optionalProduct.get().setCategory(category);
+            save();
             System.out.println(optionalProduct.get().getName() + " has been updated.");
             System.out.println("New category: " + category);
         } else {
@@ -126,9 +163,10 @@ public class ShopController {
         scanner.nextLine();
         System.out.println("Update category: ");
         String category = scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             optionalProduct.get().setCategory(category);
+            save();
             System.out.println(optionalProduct.get().getName() + " has been updated.");
             System.out.println("New category: " + category);
         } else {
@@ -142,9 +180,10 @@ public class ShopController {
         System.out.println("Update price: ");
         double price = scanner.nextDouble();
         scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             optionalProduct.get().setPrice(price);
+            save();
             System.out.println(optionalProduct.get().getName() + " has been updated.");
             System.out.println("New price: " + price);
         } else {
@@ -158,9 +197,10 @@ public class ShopController {
         scanner.nextLine();
         System.out.println("Update name: ");
         String name = scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             optionalProduct.get().setName(name);
+            save();
             System.out.println(name + " has been updated.");
         } else {
             System.out.println("Could not find product.");
@@ -180,31 +220,183 @@ public class ShopController {
         System.out.println("Quantity: ");
         long quantity = scanner.nextLong();
         scanner.nextLine();
-        Product product = new Product(id+1, name, price, category, brand, quantity);
-        repository.addProduct(product);
-        id = id +1;
+        Product product = new Product(productCount +1, name, price, category, brand, quantity);
+        productRepository.addProduct(product);
+        productCount = productCount +1;
+        save();
         System.out.println(product.getName() + " has been added.");
     }
 
     private void viewMenu() {
-        System.out.println("""
-                View Menu
+        boolean loop = true;
+        while (loop) {
+            System.out.println("""
+                Shop Menu
                 
-                1. All products
-                2. Search by name
-                3. Search by category
-                4. Find by price
-                5. Find by ID
-                6. Back
+                1. Add to Cart
+                2. View Cart
+                3. View Orders
+                
+                4. View All products
+                5. Search by name
+                6. Search by category
+                7. Find by price
+                8. Find by ID
+                
+                9. Back
                 """);
-        String choice = scanner.nextLine();
-        switch (choice) {
-            case "1" -> viewAll();
-            case "2" -> searchByName();
-            case "3" -> searchByCategory();
-            case "4" -> findByPrice();
-            case "5" -> findById();
-            case "6", "e", "E" -> {}
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> addToCart();
+                case "2" -> viewCart();
+                case "3" -> viewOrders();
+                case "4" -> viewAll();
+                case "5" -> searchByName();
+                case "6" -> searchByCategory();
+                case "7" -> findByPrice();
+                case "8" -> findById();
+                case "9", "e", "E" -> {loop = false;}
+            }
+        }
+    }
+
+    private void viewOrders() {
+        boolean loop = true;
+        while (loop) {
+            List<Order> list = orderRepository.findAll();
+            if (list.isEmpty()) {
+                System.out.println("Could not find any orders.");
+                System.out.println("\n1. Back");
+                scanner.nextLine();
+                loop = false;
+            } else {
+                System.out.println("All Orders: ");
+                for (Order order : list) {
+                    System.out.println("Order ID: " + order.getId() + " Total Price: " + order.getTotalPrice() + " SEK");
+                }
+                System.out.println("""
+                
+                1. View order details
+                2. Back
+                """);
+                String choice = scanner.nextLine();
+                switch (choice) {
+                    case "1" -> viewOrder();
+                    case "2", "e", "E" -> {loop = false;}
+                }
+            }
+        }
+    }
+
+    private void viewOrder() {
+        System.out.println("ID: ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+        if (optionalOrder.isPresent()) {
+            System.out.println(optionalOrder.get());
+            System.out.println("\n1. Back");
+            scanner.nextLine();
+        } else {
+            System.out.println("Could not find product.");
+        }
+    }
+
+    private void viewCart() {
+        boolean loop = true;
+        while (loop) {
+            System.out.println("""
+                Cart""");
+            for (CartItem cartItem : cart.getItems()) {
+                System.out.println(cartItem.getQuantity() + " pcs - " + cartItem.getProduct().getName() + " - " + cartItem.getPrice() + " SEK - ID: " + cartItem.getProductId());
+            }
+            System.out.println("\nTotal price: " + cart.getTotalPrice() + " SEK\n");
+            System.out.println("""
+                1. Confirm
+                2. Remove item
+                3. Empty
+                
+                3. Back
+                """);
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> {
+                    checkout();
+                    loop = false;
+                }
+                case "2" -> removeCartItem();
+                case "3" -> {
+                    cart.clear();
+                    System.out.println("Cart has been emptied.");
+                    System.out.println("\n1. Back");
+                    scanner.nextLine();
+                    loop = false;
+                }
+                case "4", "e", "E" -> {loop = false;}
+            }
+        }
+    }
+
+    private void removeCartItem() {
+        System.out.println("ID: ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+        Optional<CartItem> item = cart.findById(id);
+
+        if(item.isPresent()) {
+            cart.remove(item.get());
+            System.out.println("Cart has been updated.");
+        } else {
+            System.out.println("Could not find product.");
+        }
+    }
+
+    private void checkout() {
+        if (!cart.getItems().isEmpty()) {
+            List<OrderLine> list = new ArrayList<>();
+            for (CartItem cartItem : cart.getItems()) {
+                list.add(new OrderLine(cartItem.getProduct(),cartItem.getQuantity()));
+            }
+            orderCount = orderCount + 1;
+            Order order = new Order(orderCount, list);
+            orderRepository.addOrder(orderCount, order);
+            for (int i = 0; i < order.getOrderLines().size(); i++) {
+                OrderLine orderLine = order.getOrderLines().get(i);
+                Optional<Product> product = productRepository.findById(orderLine.getProductId());
+                product.get().setQuantity(product.get().getQuantity() - orderLine.getQuantity());
+            }
+            cart.clear();
+            save();
+            System.out.println("Order " + orderCount + " has been placed.");
+        } else {
+            System.out.println("Cart is empty.");
+        }
+        System.out.println("\n1. Back");
+        scanner.nextLine();
+    }
+
+    private void addToCart() {
+        System.out.println("ID: ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (optionalProduct.isPresent()) {
+            boolean loop = true;
+            while (loop) {
+                System.out.println("Quantity: ");
+                long quantity = scanner.nextLong();
+                scanner.nextLine();
+                if (quantity > 0 && quantity <= optionalProduct.get().getQuantity()) {
+                    cart.add(new CartItem(optionalProduct.get(), quantity));
+                    System.out.println(quantity + " " + optionalProduct.get().getName() + " has been added to cart.");
+                    loop = false;
+                } else {
+                    System.out.println("Invalid quantity");
+                    loop = false;
+                }
+            }
+        } else {
+            System.out.println("Could not find product.");
         }
     }
 
@@ -212,9 +404,11 @@ public class ShopController {
         System.out.println("ID: ");
         long id = scanner.nextLong();
         scanner.nextLine();
-        Optional<Product> optionalProduct = repository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             System.out.println(optionalProduct.get());
+            System.out.println("\n1. Back");
+            scanner.nextLine();
         } else {
             System.out.println("Could not find product.");
         }
@@ -226,44 +420,51 @@ public class ShopController {
         System.out.println("Max price: ");
         long max = scanner.nextLong();
         scanner.nextLine();
-        List<Product> list = repository.findByPrice(min, max);
+        List<Product> list = productRepository.findByPrice(min, max);
         if (list.isEmpty()) {
             System.out.println("Could not find any products.");
         } else {
             list.forEach(System.out::println);
+            System.out.println("\n1. Back");
+            scanner.nextLine();
         }
     }
 
     private void searchByCategory() {
         System.out.println("Category: ");
         String category = scanner.nextLine();
-        List<Product> list = repository.findByCategory(category);
+        List<Product> list = productRepository.findByCategory(category);
         if (list.isEmpty()) {
             System.out.println("Could not find any products.");
         } else {
             list.forEach(System.out::println);
+            System.out.println("\n1. Back");
+            scanner.nextLine();
         }
     }
 
     private void searchByName() {
         System.out.println("Name: ");
         String  name = scanner.nextLine();
-        List<Product> list = repository.findByName(name);
+        List<Product> list = productRepository.findByName(name);
         if (list.isEmpty()) {
             System.out.println("Could not find any products.");
         } else {
             list.forEach(System.out::println);
+            System.out.println("\n1. Back");
+            scanner.nextLine();
         }
     }
 
     private void viewAll() {
-        List<Product> list = repository.findAll();
+        List<Product> list = productRepository.findAll();
         if (list.isEmpty()) {
             System.out.println("Could not find any products.");
         } else {
             System.out.println("All products: ");
             list.forEach(System.out::println);
+            System.out.println("\n1. Back");
+            scanner.nextLine();
         }
-
     }
 }
