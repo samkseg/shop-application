@@ -2,6 +2,7 @@ package se.iths.controller;
 
 import se.iths.data.ProductRepository;
 import se.iths.model.Product;
+import se.iths.service.FileService;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +12,22 @@ public class ShopController {
     static long id = 0;
     ProductRepository repository = new ProductRepository();
 
+    FileService fileService = new FileService();
     Scanner scanner = new Scanner(System.in);
     public ShopController() {
+    }
+    public void start() {
+        fileService.fileReader();
+        repository.setRepository(fileService.getProducts());
+        id = fileService.getCount();
+        menu();
+    }
+
+    private void shutDown() {
+        fileService.setProducts(repository.getRepository());
+        fileService.fileWriter();
+        System.out.println(fileService.getProducts().values().stream().toList());
+        System.exit(0);
     }
 
     public void menu() {
@@ -32,7 +47,7 @@ public class ShopController {
                 case "2" -> addMenu();
                 case "3" -> updateMenu();
                 case "4" -> removeMenu();
-                case "5", "e", "E" -> System.exit(0);
+                case "5", "e", "E" -> shutDown();
             }
         }
     }

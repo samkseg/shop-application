@@ -38,4 +38,12 @@ public class ProductRepository {
     public void removeProduct(long id) {
         repository.remove(id);
     }
+
+    public HashMap<Long, Product> getRepository() {
+        return repository;
+    }
+
+    public void setRepository(HashMap<Long, Product> repository) {
+        this.repository = repository;
+    }
 }
