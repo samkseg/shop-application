@@ -19,8 +19,14 @@ public class Cart {
         this.items = items;
     }
 
-    public void add(CartItem cartItem) {
+    public Optional<CartItem> add(CartItem cartItem) {
+        for (CartItem item : items) {
+            if (item.getProductId() == cartItem.getProductId()) {
+                return Optional.empty();
+            }
+        }
         items.add(cartItem);
+        return Optional.of(cartItem);
     }
 
     public Optional<CartItem> findById(long id) {
@@ -59,12 +65,7 @@ public class Cart {
         }
         if (!discounts.isEmpty()) {
             for (Discount discount : discounts) {
-                if (discount instanceof Over15kDiscount && sum > 15000) {
-                    sum = discount.applyDiscount(sum);
-                }
-                if (discount instanceof SummerDiscount) {
-                    sum = discount.applyDiscount(sum);
-                }
+                sum = discount.applyDiscount(sum);
             }
         }
         return sum;

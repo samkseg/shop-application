@@ -97,6 +97,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void updateMenu() {
@@ -137,6 +138,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void updateBrand() {
@@ -154,6 +156,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void updateCategory() {
@@ -171,6 +174,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void updatePrice() {
@@ -188,6 +192,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void updateName() {
@@ -204,6 +209,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void addMenu() {
@@ -265,8 +271,7 @@ public class ShopController {
             List<Order> orders = orderRepository.findAll();
             if (orders.isEmpty()) {
                 System.out.println("Could not find any orders.");
-                System.out.println("\n1. Back");
-                scanner.nextLine();
+                goBack();
                 loop = false;
             } else {
                 System.out.println("All Orders: ");
@@ -294,11 +299,10 @@ public class ShopController {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isPresent()) {
             System.out.println(optionalOrder.get());
-            System.out.println("\n1. Back");
-            scanner.nextLine();
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void viewCart() {
@@ -316,7 +320,8 @@ public class ShopController {
             System.out.println("""
                 1. Confirm
                 2. Add/remove discount
-                3. Remove item
+                3. Update quantity
+                4. Remove item
                 4. Empty
                 
                 5. Back
@@ -328,17 +333,35 @@ public class ShopController {
                     loop = false;
                 }
                 case "2" -> addDiscount();
-                case "3" -> removeCartItem();
-                case "4" -> {
+                case "3" -> updateCart();
+                case "4" -> removeCartItem();
+                case "5" -> {
                     cart.clear();
                     System.out.println("Cart has been emptied.");
-                    System.out.println("\n1. Back");
-                    scanner.nextLine();
+                    goBack();
                     loop = false;
                 }
-                case "5", "e", "E" -> {loop = false;}
+                case "6", "e", "E" -> {loop = false;}
             }
         }
+    }
+
+    private void updateCart() {
+        System.out.println("ID: ");
+        long id = scanner.nextLong();
+        System.out.println("Update quantity: ");
+        long quantity = scanner.nextLong();
+        scanner.nextLine();
+        Optional<CartItem> optionalProduct = cart.findById(id);
+        if (optionalProduct.isPresent()) {
+            optionalProduct.get().setQuantity(quantity);
+            save();
+            System.out.println(optionalProduct.get().getProduct().getName() + " has been updated.");
+            System.out.println("New quantity: " + quantity);
+        } else {
+            System.out.println("Could not find product.");
+        }
+        goBack();
     }
 
     private void addDiscount() {
@@ -356,21 +379,12 @@ public class ShopController {
         switch (choice) {
             case "1" -> {
                 add15kDiscount();
-                System.out.println("Discount has been added.");
-                System.out.println("\n1. Back");
-                scanner.nextLine();
             }
             case "2" -> {
                 addSummerDiscount();
-                System.out.println("Discount has been added.");
-                System.out.println("\n1. Back");
-                scanner.nextLine();
             }
             case "3" -> {
                 removeDiscount();
-                System.out.println("Discounts has been removed.");
-                System.out.println("\n1. Back");
-                scanner.nextLine();
             }
             case "4", "e", "E" -> {}
         }
@@ -378,14 +392,24 @@ public class ShopController {
 
     private void addSummerDiscount() {
         cart.addDiscounts(new SummerDiscount(1L));
+        System.out.println("Discount has been added.");
+        goBack();
     }
 
     private void removeDiscount() {
         cart.setDiscounts(new HashSet<>());
+        System.out.println("Discounts has been removed.");
+        goBack();
     }
 
     private void add15kDiscount() {
-        cart.addDiscounts(new Over15kDiscount(2L));
+        if (cart.getTotalPrice() > 15000) {
+            cart.addDiscounts(new Over15kDiscount(2L));
+            System.out.println("Discount has been added.");
+        } else {
+            System.out.println("This discount can only be applied on orders over 15000 SEK.");
+        }
+        goBack();
     }
 
     private void removeCartItem() {
@@ -400,8 +424,7 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
-        System.out.println("\n1. Back");
-        scanner.nextLine();
+        goBack();
     }
 
     private void checkout() {
@@ -428,8 +451,7 @@ public class ShopController {
         } else {
             System.out.println("Cart is empty.");
         }
-        System.out.println("\n1. Back");
-        scanner.nextLine();
+        goBack();
     }
 
     private void addToCart() {
@@ -444,17 +466,23 @@ public class ShopController {
                 long quantity = scanner.nextLong();
                 scanner.nextLine();
                 if (quantity > 0 && quantity <= optionalProduct.get().getQuantity()) {
-                    cart.add(new CartItem(optionalProduct.get(), quantity));
-                    System.out.println(quantity + " " + optionalProduct.get().getName() + " has been added to cart.");
+                    Optional<CartItem> cartItem = cart.add(new CartItem(optionalProduct.get(), quantity));
+                    if (cartItem.isPresent()) {
+                        System.out.println(quantity + " " + optionalProduct.get().getName() + " has been added to cart.");
+
+                    } else {
+                        System.out.println("Product already in cart.");
+                    }
                     loop = false;
                 } else {
-                    System.out.println("Invalid quantity");
+                    System.out.println("Invalid quantity.");
                     loop = false;
                 }
             }
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void findById() {
@@ -464,11 +492,10 @@ public class ShopController {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             System.out.println(optionalProduct.get());
-            System.out.println("\n1. Back");
-            scanner.nextLine();
         } else {
             System.out.println("Could not find product.");
         }
+        goBack();
     }
 
     private void findByPrice() {
@@ -478,50 +505,52 @@ public class ShopController {
         long max = scanner.nextLong();
         scanner.nextLine();
         List<Product> list = productRepository.findByPrice(min, max);
-        if (list.isEmpty()) {
-            System.out.println("Could not find any products.");
-        } else {
+        if (!list.isEmpty()) {
             list.forEach(System.out::println);
-            System.out.println("\n1. Back");
-            scanner.nextLine();
+        } else {
+            System.out.println("Could not find any products.");
         }
+        goBack();
     }
 
     private void searchByCategory() {
         System.out.println("Category: ");
         String category = scanner.nextLine();
         List<Product> list = productRepository.findByCategory(category);
-        if (list.isEmpty()) {
-            System.out.println("Could not find any products.");
-        } else {
+        if (!list.isEmpty()) {
             list.forEach(System.out::println);
-            System.out.println("\n1. Back");
-            scanner.nextLine();
+
+        } else {
+            System.out.println("Could not find any products.");
         }
+        goBack();
     }
 
     private void searchByName() {
         System.out.println("Name: ");
         String  name = scanner.nextLine();
         List<Product> list = productRepository.findByName(name);
-        if (list.isEmpty()) {
-            System.out.println("Could not find any products.");
-        } else {
+        if (!list.isEmpty()) {
             list.forEach(System.out::println);
-            System.out.println("\n1. Back");
-            scanner.nextLine();
+        } else {
+            System.out.println("Could not find any products.");
         }
+        goBack();
     }
 
     private void viewAll() {
         List<Product> list = productRepository.findAll();
-        if (list.isEmpty()) {
-            System.out.println("Could not find any products.");
-        } else {
+        if (!list.isEmpty()) {
             System.out.println("All products: ");
             list.forEach(System.out::println);
-            System.out.println("\n1. Back");
-            scanner.nextLine();
+        } else {
+            System.out.println("Could not find any products.");
         }
+        goBack();
+    }
+
+    private void goBack() {
+        System.out.println("\n1. Back");
+        scanner.nextLine();
     }
 }
