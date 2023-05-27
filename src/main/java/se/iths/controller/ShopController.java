@@ -3,12 +3,11 @@ package se.iths.controller;
 import se.iths.data.OrderRepository;
 import se.iths.data.ProductRepository;
 import se.iths.model.*;
+import se.iths.model.SummerDiscount;
+import se.iths.model.Over15kDiscount;
 import se.iths.service.FileService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class ShopController {
     static long productCount = 0;
@@ -263,16 +262,16 @@ public class ShopController {
     private void viewOrders() {
         boolean loop = true;
         while (loop) {
-            List<Order> list = orderRepository.findAll();
-            if (list.isEmpty()) {
+            List<Order> orders = orderRepository.findAll();
+            if (orders.isEmpty()) {
                 System.out.println("Could not find any orders.");
                 System.out.println("\n1. Back");
                 scanner.nextLine();
                 loop = false;
             } else {
                 System.out.println("All Orders: ");
-                for (Order order : list) {
-                    System.out.println("Order ID: " + order.getId() + " Total Price: " + order.getTotalPrice() + " SEK");
+                for (Order order : orders) {
+                    System.out.println("Order ID: " + order.getId() + " Total Price: " + order.getPrice() + " SEK");
                 }
                 System.out.println("""
                 
@@ -308,15 +307,19 @@ public class ShopController {
             System.out.println("""
                 Cart""");
             for (CartItem cartItem : cart.getItems()) {
-                System.out.println(cartItem.getQuantity() + " pcs - " + cartItem.getProduct().getName() + " - " + cartItem.getPrice() + " SEK - ID: " + cartItem.getProductId());
+                System.out.println(cartItem.getQuantity() + " " + cartItem.getProduct().getName() + " " + cartItem.getPrice() + " SEK ID: " + cartItem.getProductId());
+            }
+            if (!cart.getDiscounts().isEmpty()) {
+                System.out.println(1 + "  Discount -" + cart.getDiscount() + " SEK");
             }
             System.out.println("\nTotal price: " + cart.getTotalPrice() + " SEK\n");
             System.out.println("""
                 1. Confirm
-                2. Remove item
-                3. Empty
+                2. Add/remove discount
+                3. Remove item
+                4. Empty
                 
-                3. Back
+                5. Back
                 """);
             String choice = scanner.nextLine();
             switch (choice) {
@@ -324,17 +327,65 @@ public class ShopController {
                     checkout();
                     loop = false;
                 }
-                case "2" -> removeCartItem();
-                case "3" -> {
+                case "2" -> addDiscount();
+                case "3" -> removeCartItem();
+                case "4" -> {
                     cart.clear();
                     System.out.println("Cart has been emptied.");
                     System.out.println("\n1. Back");
                     scanner.nextLine();
                     loop = false;
                 }
-                case "4", "e", "E" -> {loop = false;}
+                case "5", "e", "E" -> {loop = false;}
             }
         }
+    }
+
+    private void addDiscount() {
+        System.out.println("\nTotal price: " + cart.getTotalPrice() + " SEK\n");
+        System.out.println("""
+                Add Discount
+                
+                1. (20 %) discount for orders over 15k
+                2. (10 %) Summer discount
+                3. Remove discounts
+                
+                4. Back
+                """);
+        String choice = scanner.nextLine();
+        switch (choice) {
+            case "1" -> {
+                add15kDiscount();
+                System.out.println("Discount has been added.");
+                System.out.println("\n1. Back");
+                scanner.nextLine();
+            }
+            case "2" -> {
+                addSummerDiscount();
+                System.out.println("Discount has been added.");
+                System.out.println("\n1. Back");
+                scanner.nextLine();
+            }
+            case "3" -> {
+                removeDiscount();
+                System.out.println("Discounts has been removed.");
+                System.out.println("\n1. Back");
+                scanner.nextLine();
+            }
+            case "4", "e", "E" -> {}
+        }
+    }
+
+    private void addSummerDiscount() {
+        cart.addDiscounts(new SummerDiscount(1L));
+    }
+
+    private void removeDiscount() {
+        cart.setDiscounts(new HashSet<>());
+    }
+
+    private void add15kDiscount() {
+        cart.addDiscounts(new Over15kDiscount(2L));
     }
 
     private void removeCartItem() {
@@ -349,21 +400,27 @@ public class ShopController {
         } else {
             System.out.println("Could not find product.");
         }
+        System.out.println("\n1. Back");
+        scanner.nextLine();
     }
 
     private void checkout() {
         if (!cart.getItems().isEmpty()) {
-            List<OrderLine> list = new ArrayList<>();
+            List<OrderLine> orderLines = new ArrayList<>();
             for (CartItem cartItem : cart.getItems()) {
-                list.add(new OrderLine(cartItem.getProduct(),cartItem.getQuantity()));
+                orderLines.add(new OrderLine(cartItem.getProduct(),cartItem.getQuantity()));
+            }
+            if (!cart.getDiscounts().isEmpty()) {
+                orderLines.add(new OrderLine(0L, "Discount", 1L, "-" + String.valueOf(cart.getDiscount())));
             }
             orderCount = orderCount + 1;
-            Order order = new Order(orderCount, list);
+            Order order = new Order(orderCount, cart.getTotalPrice(), orderLines);
             orderRepository.addOrder(orderCount, order);
-            for (int i = 0; i < order.getOrderLines().size(); i++) {
-                OrderLine orderLine = order.getOrderLines().get(i);
+            for (OrderLine orderLine : order.getOrderLines()) {
                 Optional<Product> product = productRepository.findById(orderLine.getProductId());
-                product.get().setQuantity(product.get().getQuantity() - orderLine.getQuantity());
+                if (product.isPresent()) {
+                    product.get().setQuantity(product.get().getQuantity() - orderLine.getQuantity());
+                }
             }
             cart.clear();
             save();

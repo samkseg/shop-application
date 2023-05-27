@@ -54,9 +54,12 @@ public class FileService {
         data = orderCount + "\n";
         for (Order order : orders.values()) {
             data += order.getId() + "/";
+            data += order.getPrice() + "/";
             for (OrderLine orderLine : order.getOrderLines()) {
-                data += orderLine.getProductId() + "," + orderLine.getProduct() + "," + orderLine.getQuantity() + "," + orderLine.getTotalPrice() + ",";
-            }
+                if (!orderLine.getPrice().contains("%")) {
+                    data += orderLine.getProductId() + "," + orderLine.getProduct() + "," + orderLine.getQuantity() + "," + orderLine.getTotalPrice() + ",";
+
+                }}
             data += "/" + "\n";
         }
         return data;
@@ -67,12 +70,12 @@ public class FileService {
         String row;
         while ((row = bufferedReader.readLine()) != null) {
             strings = row.split("/");
-            orderLines = strings[1].split(",");
+            orderLines = strings[2].split(",");
             List<OrderLine> list = new ArrayList<>();
             for (int i = 0; i < orderLines.length; i+=4) {
-                list.add(new OrderLine(Long.parseLong(orderLines[i]), orderLines[i+1], Long.parseLong(orderLines[i+2]), Double.parseDouble(orderLines[i+3])));
+                list.add(new OrderLine(Long.parseLong(orderLines[i]), orderLines[i+1], Long.parseLong(orderLines[i+2]), orderLines[i+3]));
             }
-            orders.put(Long.parseLong(strings[0]),new Order(Long.parseLong(strings[0]),list));
+            orders.put(Long.parseLong(strings[0]),new Order(Long.parseLong(strings[0]), Double.parseDouble(strings[1]), list));
         }
     }
 

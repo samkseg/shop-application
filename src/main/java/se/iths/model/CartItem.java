@@ -4,13 +4,13 @@ public class CartItem {
     long productId;
     Product product;
     long quantity;
-    double price;
+    String price;
 
     public CartItem(Product product, long quantity) {
         this.productId = product.getId();
         this.product = product;
         this.quantity = quantity;
-        this.price = product.getPrice();
+        this.price = String.valueOf(product.getPrice());
     }
 
     public long getProductId() {
@@ -37,12 +37,12 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public String getPrice() {
         return price;
     }
 
     public double getTotalPrice() {
-        return quantity * price;
+        return quantity * Double.parseDouble(price);
     }
 
     @Override

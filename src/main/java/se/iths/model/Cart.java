@@ -1,11 +1,10 @@
 package se.iths.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Cart {
     List<CartItem> items = new ArrayList<>();
+    HashSet<Discount> discounts = new HashSet<>();
 
     public Cart () {}
     public Cart(List<CartItem> items) {
@@ -41,11 +40,41 @@ public class Cart {
         items.clear();
     }
 
+    public Set<Discount> getDiscounts() {
+        return discounts;
+    }
+
+    public void setDiscounts(HashSet<Discount> discounts) {
+        this.discounts = discounts;
+    }
+
+    public void addDiscounts(Discount discount) {
+        this.discounts.add(discount);
+    }
+
     public double getTotalPrice() {
         double sum = 0.0;
         for (int i = 0; i < items.size(); i++) {
             sum  += items.get(i).getTotalPrice();
         }
+        if (!discounts.isEmpty()) {
+            for (Discount discount : discounts) {
+                if (discount instanceof Over15kDiscount && sum > 15000) {
+                    sum = discount.applyDiscount(sum);
+                }
+                if (discount instanceof SummerDiscount) {
+                    sum = discount.applyDiscount(sum);
+                }
+            }
+        }
         return sum;
+    }
+
+    public double getDiscount() {
+        double sum = 0.0;
+        for (int i = 0; i < items.size(); i++) {
+            sum  += items.get(i).getTotalPrice();
+        }
+        return sum - getTotalPrice();
     }
 }

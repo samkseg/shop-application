@@ -4,16 +4,16 @@ public class OrderLine {
     long productId;
     String product;
     long quantity;
-    double price;
+    String price;
 
     public OrderLine(Product product, long quantity) {
         this.productId = product.getId();
         this.product = product.getName();
         this.quantity = quantity;
-        this.price = product.getPrice();
+        this.price = String.valueOf(product.getPrice());
     }
 
-    public OrderLine(long productId, String product, long quantity, double price) {
+    public OrderLine(long productId, String product, long quantity, String price) {
         this.productId = productId;
         this.product = product;
         this.quantity = quantity;
@@ -43,15 +43,16 @@ public class OrderLine {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public String getPrice() {
         return price;
     }
+
     public double getTotalPrice() {
-        return quantity * price;
+        return quantity * Double.parseDouble(price);
     }
 
     @Override
     public String toString() {
-        return quantity + " pcs " + product + " " + getTotalPrice() + " SEK";
+        return quantity + " " + product + " " + getTotalPrice() + " SEK";
     }
 }
