@@ -3,7 +3,7 @@ package se.iths.model.cart;
 import java.util.Objects;
 
 public abstract class Discount {
-    private long id;
+    private final long id;
 
     public Discount(long id) {
         this.id = id;

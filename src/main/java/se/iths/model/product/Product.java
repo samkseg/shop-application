@@ -82,7 +82,12 @@ public class Product {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
-        return id == product.id && Double.compare(product.price, price) == 0 && quantity == product.quantity && Objects.equals(name, product.name) && Objects.equals(category, product.category) && Objects.equals(brand, product.brand);
+        return id == product.id &&
+                Double.compare(product.price, price) == 0 &&
+                quantity == product.quantity &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(category, product.category) &&
+                Objects.equals(brand, product.brand);
     }
 
     @Override

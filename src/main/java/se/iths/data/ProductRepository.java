@@ -20,11 +20,25 @@ public class ProductRepository {
     }
 
     public List<Product> findByName(String name) {
-        return repository.values().stream().filter(product -> product.getName().toLowerCase().contains(name.toLowerCase())).toList();
+        return repository
+                .values()
+                .stream()
+                .filter(product ->
+                        product.getName()
+                        .toLowerCase()
+                        .contains(name.toLowerCase()))
+                .toList();
     }
 
     public List<Product> findByCategory(String category) {
-        return repository.values().stream().filter(product -> product.getCategory().toLowerCase().contains(category.toLowerCase())).toList();
+        return repository
+                .values()
+                .stream()
+                .filter(product ->
+                        product.getCategory()
+                        .toLowerCase().
+                        contains(category.toLowerCase()))
+                .toList();
     }
 
     public Optional<Product> findById(long id) {
@@ -37,7 +51,11 @@ public class ProductRepository {
     }
 
     public List<Product> findByPrice(long min, long max) {
-        return repository.values().stream().filter(p -> p.getPrice() <= max && p.getPrice() >= min).toList();
+        return repository
+                .values()
+                .stream()
+                .filter(p -> p.getPrice() <= max && p.getPrice() >= min)
+                .toList();
     }
 
     public void removeProduct(long id) {

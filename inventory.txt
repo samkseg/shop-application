@@ -1,0 +1,4 @@
+3
+1,iPhone 14,14000.0,Phone,Apple,99,
+2,Galaxy 23,13500.0,Phone,Samsung,99,
+3,HP Computer,17000.0,PC,HP,99,

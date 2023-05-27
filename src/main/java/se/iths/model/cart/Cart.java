@@ -53,8 +53,8 @@ public class Cart {
 
     public double getTotalPrice() {
         double sum = 0.0;
-        for (int i = 0; i < items.size(); i++) {
-            sum  += items.get(i).getTotalPrice();
+        for (CartItem item : items) {
+            sum += item.getTotalPrice();
         }
         if (!discounts.isEmpty()) {
             for (Discount discount : discounts) {
@@ -66,8 +66,8 @@ public class Cart {
 
     public double getDiscount() {
         double sum = 0.0;
-        for (int i = 0; i < items.size(); i++) {
-            sum  += items.get(i).getTotalPrice();
+        for (CartItem item : items) {
+            sum += item.getTotalPrice();
         }
         return sum - getTotalPrice();
     }

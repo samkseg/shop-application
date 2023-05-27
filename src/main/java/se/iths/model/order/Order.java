@@ -28,9 +28,14 @@ public class Order {
 
     @Override
     public String toString() {
-        String items = "";
+        StringBuilder items = new StringBuilder();
         for (OrderLine orderLine : orderLines) {
-            items = items + orderLine.quantity + " " + orderLine.getProduct() + " " + orderLine.getPrice() + " SEK\n";
+            items.append(orderLine.quantity)
+                    .append(" ")
+                    .append(orderLine.getProduct())
+                    .append(" ")
+                    .append(orderLine.getPrice())
+                    .append(" SEK\n");
         }
         return "Order ID: " + id + "\n" + items + " \nTotal: " + getPrice() + " SEK";
     }

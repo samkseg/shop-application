@@ -229,7 +229,13 @@ public class ShopController {
         System.out.println("Quantity: ");
         long quantity = scanner.nextLong();
         scanner.nextLine();
-        Product product = new Product(productCount +1, name, price, category, brand, quantity);
+        Product product = new Product(
+                productCount +1,
+                name,
+                price,
+                category,
+                brand,
+                quantity);
         productRepository.addProduct(product);
         productCount = productCount +1;
         save();
@@ -280,7 +286,9 @@ public class ShopController {
             } else {
                 System.out.println("All Orders: ");
                 for (Order order : orders) {
-                    System.out.println("Order ID: " + order.getId() + " Total Price: " + order.getPrice() + " SEK");
+                    System.out.println("" +
+                            "Order ID: " + order.getId() +
+                            " Total Price: " + order.getPrice() + " SEK");
                 }
                 System.out.println("""
                 
@@ -315,7 +323,11 @@ public class ShopController {
             System.out.println("""
                 Cart""");
             for (CartItem cartItem : cart.getItems()) {
-                System.out.println(cartItem.getQuantity() + " " + cartItem.getProduct().getName() + " " + cartItem.getPrice() + " SEK ID: " + cartItem.getProductId());
+                System.out.println(
+                        cartItem.getQuantity() + " " +
+                        cartItem.getProduct().getName() + " " +
+                        cartItem.getPrice() + " SEK ID: " +
+                        cartItem.getProductId());
             }
             if (!cart.getDiscounts().isEmpty()) {
                 System.out.println(1 + "  Discount -" + cart.getDiscount() + " SEK");
@@ -435,19 +447,23 @@ public class ShopController {
         if (!cart.getItems().isEmpty()) {
             List<OrderLine> orderLines = new ArrayList<>();
             for (CartItem cartItem : cart.getItems()) {
-                orderLines.add(new OrderLine(cartItem.getProduct(),cartItem.getQuantity()));
+                orderLines.add(new OrderLine(
+                        cartItem.getProduct(),
+                        cartItem.getQuantity()));
             }
             if (!cart.getDiscounts().isEmpty()) {
-                orderLines.add(new OrderLine(0L, "Discount", 1L, "-" + String.valueOf(cart.getDiscount())));
+                orderLines.add(new OrderLine(
+                        0L,
+                        "Discount",
+                        1L,
+                        "-" + cart.getDiscount()));
             }
             orderCount = orderCount + 1;
             Order order = new Order(orderCount, cart.getTotalPrice(), orderLines);
             orderRepository.addOrder(order);
             for (OrderLine orderLine : order.getOrderLines()) {
                 Optional<Product> product = productRepository.findById(orderLine.getProductId());
-                if (product.isPresent()) {
-                    product.get().setQuantity(product.get().getQuantity() - orderLine.getQuantity());
-                }
+                product.ifPresent(p -> p.setQuantity(p.getQuantity() - orderLine.getQuantity()));
             }
             cart.clear();
             save();

@@ -57,9 +57,12 @@ public class FileService {
             data += order.getPrice() + "/";
             for (OrderLine orderLine : order.getOrderLines()) {
                 if (!orderLine.getPrice().contains("%")) {
-                    data += orderLine.getProductId() + "," + orderLine.getProduct() + "," + orderLine.getQuantity() + "," + orderLine.getTotalPrice() + ",";
-
-                }}
+                    data += orderLine.getProductId() + "," +
+                            orderLine.getProduct() + "," +
+                            orderLine.getQuantity() + "," +
+                            orderLine.getTotalPrice() + ",";
+                }
+            }
             data += "/" + "\n";
         }
         return data;
@@ -73,9 +76,18 @@ public class FileService {
             orderLines = strings[2].split(",");
             List<OrderLine> list = new ArrayList<>();
             for (int i = 0; i < orderLines.length; i+=4) {
-                list.add(new OrderLine(Long.parseLong(orderLines[i]), orderLines[i+1], Long.parseLong(orderLines[i+2]), orderLines[i+3]));
+                list.add(new OrderLine(
+                            Long.parseLong(orderLines[i]),
+                            orderLines[i+1],
+                            Long.parseLong(orderLines[i+2]),
+                            orderLines[i+3]));
             }
-            orders.put(Long.parseLong(strings[0]),new Order(Long.parseLong(strings[0]), Double.parseDouble(strings[1]), list));
+            orders.put(
+                    Long.parseLong(strings[0]),
+                    new Order(
+                            Long.parseLong(strings[0]),
+                            Double.parseDouble(strings[1]),
+                            list));
         }
     }
 
@@ -90,7 +102,12 @@ public class FileService {
         }
         data = productCount + "\n";
         for (Product product : products.values()) {
-            data += product.getId() + "," + product.getName()  + "," + product.getPrice() + "," + product.getCategory() + "," + product.getBrand() + "," + product.getQuantity()  + "," + "\n";
+            data += product.getId() + "," +
+                    product.getName()  + "," +
+                    product.getPrice() + "," +
+                    product.getCategory() + "," +
+                    product.getBrand() + "," +
+                    product.getQuantity()  + "," + "\n";
         }
         return data;
     }
@@ -101,7 +118,14 @@ public class FileService {
         while ((row = bufferedReader.readLine()) != null) {
             strings = row.split(",");
             for (int i = 0; i < strings.length; i+=6) {
-                products.put(Long.parseLong(strings[i]),new Product(Long.parseLong((strings[i])), strings[i+1], Double.parseDouble(strings[i+2]), strings[i+3], strings[i+4], Long.parseLong(strings[i+5])));
+                products.put(Long.parseLong(strings[i]),
+                        new Product(
+                                Long.parseLong((strings[i])),
+                                strings[i+1],
+                                Double.parseDouble(strings[i+2]),
+                                strings[i+3],
+                                strings[i+4],
+                                Long.parseLong(strings[i+5])));
             }
         }
     }
