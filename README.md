@@ -2,6 +2,9 @@
 
 Assignment for course in Java Programming
 
+## Description
+Using Java programming and Java syntax for object-oriented programming and to read/write files.
+
 ***  
 ### Features
 
@@ -21,3 +24,5 @@ Assignment for course in Java Programming
 * Place order
 * View list of orders
 * View order details
+
+***
