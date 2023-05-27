@@ -1,8 +1,8 @@
 package se.iths.service;
 
-import se.iths.model.Order;
-import se.iths.model.OrderLine;
-import se.iths.model.Product;
+import se.iths.model.order.Order;
+import se.iths.model.order.OrderLine;
+import se.iths.model.product.Product;
 
 import java.io.*;
 import java.util.ArrayList;

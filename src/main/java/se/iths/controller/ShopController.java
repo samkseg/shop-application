@@ -2,9 +2,13 @@ package se.iths.controller;
 
 import se.iths.data.OrderRepository;
 import se.iths.data.ProductRepository;
-import se.iths.model.*;
-import se.iths.model.SummerDiscount;
-import se.iths.model.Over15kDiscount;
+import se.iths.model.cart.Cart;
+import se.iths.model.cart.CartItem;
+import se.iths.model.cart.SummerDiscount;
+import se.iths.model.cart.Over15kDiscount;
+import se.iths.model.order.Order;
+import se.iths.model.order.OrderLine;
+import se.iths.model.product.Product;
 import se.iths.service.FileService;
 
 import java.util.*;
@@ -438,7 +442,7 @@ public class ShopController {
             }
             orderCount = orderCount + 1;
             Order order = new Order(orderCount, cart.getTotalPrice(), orderLines);
-            orderRepository.addOrder(orderCount, order);
+            orderRepository.addOrder(order);
             for (OrderLine orderLine : order.getOrderLines()) {
                 Optional<Product> product = productRepository.findById(orderLine.getProductId());
                 if (product.isPresent()) {

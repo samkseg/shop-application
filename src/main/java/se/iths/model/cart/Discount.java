@@ -1,4 +1,4 @@
-package se.iths.model;
+package se.iths.model.cart;
 
 import java.util.Objects;
 

@@ -1,6 +1,6 @@
 package se.iths.data;
 
-import se.iths.model.Order;
+import se.iths.model.order.Order;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +14,9 @@ public class OrderRepository {
     public List<Order> findAll() {
         return repository.values().stream().toList();
     }
-    public Order addOrder(long id, Order order) {
-        repository.put(order.getId(),order);
+
+    public Order addOrder(Order order) {
+        repository.put(order.getId(), order);
         return order;
     }
 

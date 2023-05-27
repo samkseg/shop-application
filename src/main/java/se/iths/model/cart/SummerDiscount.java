@@ -1,4 +1,4 @@
-package se.iths.model;
+package se.iths.model.cart;
 
 public class SummerDiscount extends Discount{
     public SummerDiscount(long id) {

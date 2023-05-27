@@ -1,4 +1,4 @@
-package se.iths.model;
+package se.iths.model.cart;
 
 import java.util.*;
 
@@ -7,16 +7,9 @@ public class Cart {
     HashSet<Discount> discounts = new HashSet<>();
 
     public Cart () {}
-    public Cart(List<CartItem> items) {
-        this.items = items;
-    }
 
     public List<CartItem> getItems() {
         return items;
-    }
-
-    public void setItems(List<CartItem> items) {
-        this.items = items;
     }
 
     public Optional<CartItem> add(CartItem cartItem) {

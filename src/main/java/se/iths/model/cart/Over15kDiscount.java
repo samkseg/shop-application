@@ -1,4 +1,4 @@
-package se.iths.model;
+package se.iths.model.cart;
 
 public class Over15kDiscount extends Discount {
     public Over15kDiscount(long id) {

@@ -1,4 +1,6 @@
-package se.iths.model;
+package se.iths.model.cart;
+
+import se.iths.model.product.Product;
 
 public class CartItem {
     long productId;
@@ -17,16 +19,8 @@ public class CartItem {
         return productId;
     }
 
-    public void setProductId(long productId) {
-        this.productId = productId;
-    }
-
     public Product getProduct() {
         return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 
     public long getQuantity() {

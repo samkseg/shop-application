@@ -1,6 +1,6 @@
 package se.iths.data;
 
-import se.iths.model.Product;
+import se.iths.model.product.Product;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +14,19 @@ public class ProductRepository {
        repository.put(product.getId(), product);
        return product;
     }
+
     public List<Product> findAll() {
         return repository.values().stream().toList();
     }
+
     public List<Product> findByName(String name) {
         return repository.values().stream().filter(product -> product.getName().toLowerCase().contains(name.toLowerCase())).toList();
     }
+
     public List<Product> findByCategory(String category) {
         return repository.values().stream().filter(product -> product.getCategory().toLowerCase().contains(category.toLowerCase())).toList();
     }
+
     public Optional<Product> findById(long id) {
         Product product = repository.get(id);
         if (product == null) {
@@ -31,6 +35,7 @@ public class ProductRepository {
             return Optional.of(product);
         }
     }
+
     public List<Product> findByPrice(long min, long max) {
         return repository.values().stream().filter(p -> p.getPrice() <= max && p.getPrice() >= min).toList();
     }

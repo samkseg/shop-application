@@ -1,4 +1,6 @@
-package se.iths.model;
+package se.iths.model.order;
+
+import se.iths.model.product.Product;
 
 public class OrderLine {
     long productId;
@@ -23,24 +25,12 @@ public class OrderLine {
         return productId;
     }
 
-    public void setProductId(long productId) {
-        this.productId = productId;
-    }
-
     public String getProduct() {
         return product;
     }
 
-    public void setProduct(String product) {
-        this.product = product;
-    }
-
     public long getQuantity() {
         return quantity;
-    }
-
-    public void setQuantity(long quantity) {
-        this.quantity = quantity;
     }
 
     public String getPrice() {

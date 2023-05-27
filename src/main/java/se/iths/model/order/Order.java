@@ -1,4 +1,4 @@
-package se.iths.model;
+package se.iths.model.order;
 
 import java.util.List;
 
@@ -18,24 +18,12 @@ public class Order {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public List<OrderLine> getOrderLines() {
         return orderLines;
-    }
-
-    public void setOrderLines(List<OrderLine> orderLines) {
-        this.orderLines = orderLines;
     }
 
     @Override
